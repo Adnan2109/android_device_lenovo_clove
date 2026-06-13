@@ -106,7 +106,7 @@ BOARD_USES_METADATA_PARTITION := true
 # super
 BOARD_SUPER_PARTITION_SIZE :=6442450944
 BOARD_SUPER_PARTITION_GROUPS := lenovo_dynamic_partitions
-BOARD_LENOVO_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext vendor product system_dlkm vendor_dlkm odm_dlkm
+BOARD_LENOVO_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext vendor product vendor_dlkm odm_dlkm
 BOARD_LENOVO_DYNAMIC_PARTITIONS_SIZE :=6434062336
 
 # copyout
