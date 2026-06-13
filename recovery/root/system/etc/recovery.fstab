@@ -1,0 +1,56 @@
+# Lenovo TB-305FU (MT6768/MT8786X) TWRP recovery fstab
+# Derived from stock vendor_boot ramdisk fstab.mt6768
+#
+# <mount_point>  <fs_type>  <device>  <flags>
+
+# Dynamic / logical partitions (A/B)
+/system         ext4    /dev/block/mapper/system        ro,slotselect,logical,first_stage_mount
+/vendor         ext4    /dev/block/mapper/vendor        ro,slotselect,logical,first_stage_mount
+/product        ext4    /dev/block/mapper/product       ro,slotselect,logical,first_stage_mount
+/system_ext     ext4    /dev/block/mapper/system_ext    ro,slotselect,logical,first_stage_mount
+
+# Userdata
+/data           f2fs    /dev/block/by-name/userdata     flags=fileencryption=aes-256-xts:aes-256-cts:v2,wrappedkey;quota;latemount
+
+# Metadata (required for FBE/encryption)
+/metadata       ext4    /dev/block/by-name/md_udc       flags=first_stage_mount;formattable
+
+# MTK-specific vendor partitions
+/mnt/vendor/protect_f   ext4    /dev/block/by-name/protect1     flags=formattable
+/mnt/vendor/protect_s   ext4    /dev/block/by-name/protect2     flags=formattable
+/mnt/vendor/nvdata      ext4    /dev/block/by-name/nvdata        flags=formattable
+/mnt/vendor/nvcfg       ext4    /dev/block/by-name/nvcfg         flags=formattable
+/mnt/vendor/persist     ext4    /dev/block/by-name/persist       flags=formattable
+/lenovocust     ext4    /dev/block/by-name/lenovocust   flags=formattable
+
+# Raw partitions (for flashing/backup)
+/boot           emmc    /dev/block/by-name/boot_a       flags=slotselect;nofail
+/vendor_boot    emmc    /dev/block/by-name/vendor_boot_a flags=slotselect;nofail
+/dtbo           emmc    /dev/block/by-name/dtbo_a        flags=slotselect;nofail
+/vbmeta         emmc    /dev/block/by-name/vbmeta_a      flags=slotselect
+/vbmeta_system  emmc    /dev/block/by-name/vbmeta_system_a flags=slotselect
+/vbmeta_vendor  emmc    /dev/block/by-name/vbmeta_vendor_a flags=slotselect
+/lk             emmc    /dev/block/by-name/lk
+/lk2            emmc    /dev/block/by-name/lk2
+/misc           emmc    /dev/block/by-name/misc
+/logo           emmc    /dev/block/by-name/logo
+/nvram          emmc    /dev/block/by-name/nvram
+/proinfo        emmc    /dev/block/by-name/proinfo
+/lenovoraw      emmc    /dev/block/by-name/lenovoraw
+/seccfg         emmc    /dev/block/by-name/seccfg
+/frp            emmc    /dev/block/by-name/frp
+/persistent     emmc    /dev/block/by-name/frp
+/tee1           emmc    /dev/block/by-name/tee1
+/tee2           emmc    /dev/block/by-name/tee2
+/gz1            emmc    /dev/block/by-name/gz1
+/gz2            emmc    /dev/block/by-name/gz2
+/scp1           emmc    /dev/block/by-name/scp1
+/scp2           emmc    /dev/block/by-name/scp2
+/expdb          emmc    /dev/block/by-name/expdb
+/para           emmc    /dev/block/by-name/para
+/otp            emmc    /dev/block/by-name/otp
+/spmfw          emmc    /dev/block/by-name/spmfw
+
+# External storage
+/external_sd    vfat    /dev/block/mmcblk1p1    /dev/block/mmcblk1  flags=display="MicroSD";storage;wipeingui;removable
+/usb_otg        vfat    /dev/block/sda1         /dev/block/sda      flags=display="USB OTG";storage;wipeingui;removable
