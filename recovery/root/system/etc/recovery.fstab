@@ -24,12 +24,12 @@
 /lenovocust     ext4    /dev/block/by-name/lenovocust   flags=formattable
 
 # Raw partitions (for flashing/backup)
-/boot           emmc    /dev/block/by-name/boot_a       flags=slotselect;nofail
-/vendor_boot    emmc    /dev/block/by-name/vendor_boot_a flags=slotselect;nofail
-/dtbo           emmc    /dev/block/by-name/dtbo_a        flags=slotselect;nofail
-/vbmeta         emmc    /dev/block/by-name/vbmeta_a      flags=slotselect
-/vbmeta_system  emmc    /dev/block/by-name/vbmeta_system_a flags=slotselect
-/vbmeta_vendor  emmc    /dev/block/by-name/vbmeta_vendor_a flags=slotselect
+/boot           emmc    /dev/block/by-name/boot       flags=slotselect;nofail
+/vendor_boot    emmc    /dev/block/by-name/vendor_boot flags=slotselect;nofail
+/dtbo           emmc    /dev/block/by-name/dtbo        flags=slotselect;nofail
+/vbmeta         emmc    /dev/block/by-name/vbmeta      flags=slotselect
+/vbmeta_system  emmc    /dev/block/by-name/vbmeta_system flags=slotselect
+/vbmeta_vendor  emmc    /dev/block/by-name/vbmeta_vendor flags=slotselect
 /lk             emmc    /dev/block/by-name/lk
 /lk2            emmc    /dev/block/by-name/lk2
 /misc           emmc    /dev/block/by-name/misc
