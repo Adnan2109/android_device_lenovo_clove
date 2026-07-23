@@ -8,7 +8,7 @@
 # Run from an ADB shell after TWRP has finished booting:
 #   adb shell sh /sbin/load_touch.sh
 
-MODULES="sspm_v1 mtk-dvfsrc-helper mtk_gpu_hal mtk_gpufreq_wrapper_legacy \
+MODULES="hwmon alsps_common sspm_v1 mtk-dvfsrc-helper mtk_gpu_hal mtk_gpufreq_wrapper_legacy \
 mtk_gpufreq_mt6768 connadp mediatek_static_power Upower mtk_ppm_v3 \
 thermal_monitor mtk_power_gs_v1 MTK_INTERNAL_SPM scp sensorHub alspshub \
 tpd_notify touch_common ilitek_spi"
