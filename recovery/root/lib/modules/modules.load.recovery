@@ -164,5 +164,3 @@ hq_usbnet.ko
 smsc95xx.ko
 extend_reclaim.ko
 perf_helper.ko
-hwmon.ko
-alsps_common.ko
