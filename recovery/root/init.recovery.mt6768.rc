@@ -1,6 +1,46 @@
 import /init.decrypt.rc
 import /vibrator-clove.rc
 
+# Modules
+on early-init
+    # 1. Base Hardware & Bus Drivers
+    insmod /vendor/lib/modules/spi-mt65xx.ko
+    insmod /vendor/lib/modules/touch_common.ko
+    insmod /vendor/lib/modules/hwmon.ko
+    insmod /vendor/lib/modules/sspm_v1.ko
+    insmod /vendor/lib/modules/scp.ko
+
+    # 2. Power & Thermal Infrastructure
+    insmod /vendor/lib/modules/MTK_INTERNAL_SPM.ko
+    insmod /vendor/lib/modules/mediatek_static_power.ko
+    insmod /vendor/lib/modules/Upower.ko
+    insmod /vendor/lib/modules/mtk_ppm_v3.ko
+    insmod /vendor/lib/modules/thermal_monitor.ko
+
+    # 3. Dynamic Frequency & Performance
+    insmod /vendor/lib/modules/mtk-dvfsrc-helper.ko
+    insmod /vendor/lib/modules/mtk_gpufreq_mt6768.ko
+    insmod /vendor/lib/modules/mtk_gpufreq_wrapper_legacy.ko
+    insmod /vendor/lib/modules/mtk_gpu_hal.ko
+    insmod /vendor/lib/modules/connadp.ko
+
+    # 4. Battery & Power Throttling
+    insmod /vendor/lib/modules/mtk_power_gs_v1.ko
+    insmod /vendor/lib/modules/mtk_mdpm_v1.ko
+    insmod /vendor/lib/modules/mtk_pbm.ko
+    insmod /vendor/lib/modules/mtk_dynamic_loading_throttling.ko
+    insmod /vendor/lib/modules/mtk_battery_oc_throttling.ko
+    insmod /vendor/lib/modules/mtk_low_battery_throttling.ko
+
+    # 5. Sensor Hub
+    insmod /vendor/lib/modules/sensorHub.ko
+    insmod /vendor/lib/modules/alsps_common.ko
+    insmod /vendor/lib/modules/alspshub.ko
+
+    # 6. OEM Sysfs & Touch Driver
+    insmod /vendor/lib/modules/tpd_notify.ko
+    insmod /vendor/lib/modules/hqsysfs.ko
+    insmod /vendor/lib/modules/ilitek_spi.ko
 
 on post-fs 
     start boot-hal-1-2
