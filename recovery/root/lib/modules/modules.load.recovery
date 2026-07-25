@@ -15,6 +15,9 @@ clkdbg-mt6768.ko
 clk-fmeter-mt6768.ko
 device-apc-common-legacy.ko
 device-apc-mt6768.ko
+mtk-scpsys.ko
+mtk-scpsys-mt6768.ko
+mtk-scpsys-bringup.ko
 pd-chk-mt6768.ko
 pinctrl-mtk-v2.ko
 pinctrl-mt6768.ko
