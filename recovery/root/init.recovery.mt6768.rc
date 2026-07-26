@@ -2,13 +2,12 @@ import /init.decrypt.rc
 import /vibrator-clove.rc
 
 # Modules
-on early-init
+on init
     # 1. Base Hardware & Bus Drivers
     insmod /vendor/lib/modules/spi-mt65xx.ko
     insmod /vendor/lib/modules/touch_common.ko
     insmod /vendor/lib/modules/hwmon.ko
     insmod /vendor/lib/modules/sspm_v1.ko
-    insmod /vendor/lib/modules/scp.ko
 
     # 2. Power & Thermal Infrastructure
     insmod /vendor/lib/modules/MTK_INTERNAL_SPM.ko
@@ -23,6 +22,10 @@ on early-init
     insmod /vendor/lib/modules/mtk_gpufreq_wrapper_legacy.ko
     insmod /vendor/lib/modules/mtk_gpu_hal.ko
     insmod /vendor/lib/modules/connadp.ko
+
+    # 3.5 SCP - moved here since it depends on MTK_INTERNAL_SPM and
+    # mtk-dvfsrc-helper (confirmed via modinfo) - must load after both
+    insmod /vendor/lib/modules/scp.ko
 
     # 4. Battery & Power Throttling
     insmod /vendor/lib/modules/mtk_power_gs_v1.ko
