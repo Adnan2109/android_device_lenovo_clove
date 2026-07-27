@@ -176,6 +176,10 @@ TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
 TW_DEFAULT_BRIGHTNESS := 1200
 TW_MAX_BRIGHTNESS := 4095
 
+# Battery: tell TWRP to use the MTK battery sysfs path for capacity.
+# mt6358_battery exposes capacity at this node (verified on MT6768).
+TW_CUSTOM_BATTERY_PATH := /sys/class/power_supply/battery/capacity
+
 # USB
 TW_EXCLUDE_DEFAULT_USB_INIT := true
 
@@ -188,5 +192,13 @@ TW_DEVICE_VERSION := $(BOARD_MAINTAINER_NAME)
 OF_MAINTAINER := $(BOARD_MAINTAINER_NAME)
 PB_MAIN_VERSION := $(BOARD_MAINTAINER_NAME)
 
-# Temp
-TW_CUSTOM_CPU_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone4/temp
+# Temp - MT6768 CPU thermal is typically zone0 (CPU big) or zone1 (CPU LITTLE)
+# thermal_zone4 is often battery/charger thermal, not CPU.
+# Try zone0 first; if wrong, check /sys/class/thermal/ on a booted recovery.
+TW_CUSTOM_CPU_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone0/temp
+# Secondary CPU temp path (TWRP fallback)
+TW_CUSTOM_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone1/temp
+
+# Touch: ensure screen is not blanked on boot so touch events register properly.
+# Also helps with ILITEK/Goodix touch initialization on MTK Helio.
+TW_SCREEN_BLANK_ON_BOOT := true

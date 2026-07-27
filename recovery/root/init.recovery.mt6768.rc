@@ -34,16 +34,31 @@ on init
     insmod /vendor/lib/modules/mtk_dynamic_loading_throttling.ko
     insmod /vendor/lib/modules/mtk_battery_oc_throttling.ko
     insmod /vendor/lib/modules/mtk_low_battery_throttling.ko
+    insmod /lib/modules/battery_id_adc.ko
+    insmod /lib/modules/mt6358_battery.ko
+    insmod /lib/modules/hq_fg_class.ko
+    insmod /lib/modules/mm8013.ko
+    insmod /lib/modules/mtk_battery_manager.ko
 
     # 5. Sensor Hub
     insmod /vendor/lib/modules/sensorHub.ko
     insmod /vendor/lib/modules/alsps_common.ko
     insmod /vendor/lib/modules/alspshub.ko
 
-    # 6. OEM Sysfs & Touch Driver
+    # 6. Thermal (CPU temp fix)
+    insmod /vendor/lib/modules/mtk_bp_thl.ko
+    insmod /vendor/lib/modules/mtk_cpu_power_throttling.ko
+
+    # 7. OEM Sysfs & Touch Driver
     insmod /vendor/lib/modules/tpd_notify.ko
     insmod /vendor/lib/modules/hqsysfs.ko
+    # ILITEK SPI touch (primary)
     insmod /vendor/lib/modules/ilitek_spi.ko
+    # Goodix GT1151 touch (fallback - some variants use this)
+    insmod /vendor/lib/modules/gt1151.ko
+    # Additional touch drivers (chipone/focaltech fallbacks)
+    insmod /vendor/lib/modules/chipone.ko
+    insmod /vendor/lib/modules/chipone9916.ko
 
 on post-fs 
     start boot-hal-1-2
