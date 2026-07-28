@@ -192,11 +192,7 @@ TW_DEVICE_VERSION := $(BOARD_MAINTAINER_NAME)
 OF_MAINTAINER := $(BOARD_MAINTAINER_NAME)
 PB_MAIN_VERSION := $(BOARD_MAINTAINER_NAME)
 
-# Temp - MT6768 CPU thermal is typically zone0 (CPU big) or zone1 (CPU LITTLE)
-# thermal_zone4 is often battery/charger thermal, not CPU.
-# Try zone0 first; if wrong, check /sys/class/thermal/ on a booted recovery.
-TW_CUSTOM_CPU_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone0/temp
-# Secondary CPU temp path (TWRP fallback)
+# CPU Temp: thermal_zone8 registered by MTK_INTERNAL_SPM as type 'mtktscpu'
 TW_CUSTOM_CPU_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone8/temp
 
 # Touch: ensure screen is not blanked on boot so touch events register properly.
