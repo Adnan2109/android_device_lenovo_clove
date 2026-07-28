@@ -197,7 +197,7 @@ PB_MAIN_VERSION := $(BOARD_MAINTAINER_NAME)
 # Try zone0 first; if wrong, check /sys/class/thermal/ on a booted recovery.
 TW_CUSTOM_CPU_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone0/temp
 # Secondary CPU temp path (TWRP fallback)
-TW_CUSTOM_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone1/temp
+TW_CUSTOM_CPU_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone8/temp
 
 # Touch: ensure screen is not blanked on boot so touch events register properly.
 # Also helps with ILITEK/Goodix touch initialization on MTK Helio.
