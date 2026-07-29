@@ -39,6 +39,27 @@ on init
     insmod /vendor/lib/modules/mtk_low_battery_throttling.ko
     insmod /vendor/lib/modules/hqsysfs.ko
 
+    # 6. SCP - depends on MTK_INTERNAL_SPM and mtk-dvfsrc-helper (both loaded in
+    # sections 2/3 above). Currently fails with "SCP disabled" on this device
+    # in TWRP (root cause still under investigation) but kept here since it's
+    # otherwise correctly ordered and harmless to attempt.
+    insmod /vendor/lib/modules/scp.ko
+
+    # 7. Sensor hub chain - required by all touch drivers below
+    insmod /vendor/lib/modules/sensorHub.ko
+    insmod /vendor/lib/modules/alspshub.ko
+    insmod /vendor/lib/modules/tui-common.ko
+    insmod /vendor/lib/modules/tpd_notify.ko
+
+    # 8. Touch drivers - multiple IC variants for different panel/digitizer
+    # combos this device tree may be used with. ilitek_spi is the confirmed
+    # driver for this specific unit (ILITEK_TDDI); the others are safe to
+    # attempt alongside it since a non-matching driver simply won't probe.
+    insmod /vendor/lib/modules/ilitek_spi.ko
+    insmod /vendor/lib/modules/chipone.ko
+    insmod /vendor/lib/modules/chipone9916.ko
+    insmod /vendor/lib/modules/gt1151.ko
+
     # USB config for MTK musb controller
     setprop sys.usb.configfs 1
     setprop sys.usb.controller "musb-hdrc"
