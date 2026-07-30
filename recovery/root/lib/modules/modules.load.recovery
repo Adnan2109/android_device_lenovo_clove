@@ -7,8 +7,6 @@ nvmem_mtk-devinfo.ko
 mtk-socinfo.ko
 mtk_wdt.ko
 timer-mediatek.ko
-hwmon.ko
-alsps_common.ko
 sspm_v1.ko
 mediatek_static_power.ko
 Upower.ko
