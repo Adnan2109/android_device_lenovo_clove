@@ -6,10 +6,12 @@ on init
     insmod /lib/modules/spi-mt65xx.ko
     insmod /lib/modules/sspm_v1.ko
 
-    # 2. Power & Thermal Infrastructure
+   # 2. Power & Thermal Infrastructure
+    insmod /lib/modules/mtk_cpuidle.ko
     insmod /lib/modules/MTK_INTERNAL_SPM.ko
     insmod /lib/modules/mediatek_static_power.ko
     insmod /lib/modules/Upower.ko
+    insmod /lib/modules/mtk_cpuhp.ko
     insmod /lib/modules/mtk_ppm_v3.ko
     insmod /lib/modules/thermal_monitor.ko
 
