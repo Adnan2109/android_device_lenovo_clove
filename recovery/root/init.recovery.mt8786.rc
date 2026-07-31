@@ -4,33 +4,23 @@ import /vibrator-clove.rc
 on init
     # 1. Base Hardware & Bus Drivers
     insmod /lib/modules/spi-mt65xx.ko
-    insmod /lib/modules/hwmon.ko
-    insmod /lib/modules/alsps_common.ko
     insmod /lib/modules/sspm_v1.ko
 
-    # 2. Thermal / Power chain (dependency order is critical)
-    insmod /lib/modules/timer-mediatek.ko
+    # 2. Power & Thermal Infrastructure
+    insmod /lib/modules/MTK_INTERNAL_SPM.ko
     insmod /lib/modules/mediatek_static_power.ko
     insmod /lib/modules/Upower.ko
     insmod /lib/modules/mtk_ppm_v3.ko
     insmod /lib/modules/thermal_monitor.ko
-    insmod /lib/modules/MTK_INTERNAL_SPM.ko
 
-    # 3. Performance & Frequency
+    # 3. Dynamic Frequency & Performance
     insmod /lib/modules/mtk-dvfsrc-helper.ko
-    insmod /lib/modules/mtk_gpu_hal.ko
-    insmod /lib/modules/mtk_gpufreq_wrapper_legacy.ko
     insmod /lib/modules/mtk_gpufreq_mt6768.ko
+    insmod /lib/modules/mtk_gpufreq_wrapper_legacy.ko
+    insmod /lib/modules/mtk_gpu_hal.ko
     insmod /lib/modules/connadp.ko
 
-    # 4. Battery modules
-    insmod /lib/modules/battery_id_adc.ko
-    insmod /lib/modules/mt6358_battery.ko
-    insmod /lib/modules/hq_fg_class.ko
-    insmod /lib/modules/mm8013.ko
-    insmod /lib/modules/mtk_battery_manager.ko
-
-    # 5. Misc power management
+    # 4. Battery & Power Throttling
     insmod /lib/modules/mtk_power_gs_v1.ko
     insmod /lib/modules/mtk_mdpm_v1.ko
     insmod /lib/modules/mtk_pbm.ko
@@ -39,7 +29,6 @@ on init
     insmod /lib/modules/mtk_low_battery_throttling.ko
     insmod /lib/modules/hqsysfs.ko
 
-    # USB config for MTK musb controller
     setprop sys.usb.configfs 1
     setprop sys.usb.controller "musb-hdrc"
     setprop sys.usb.ffs.aio_compat 1
@@ -60,21 +49,9 @@ on fs
     write /sys/class/udc/musb-hdrc/device/cmode 2
     start adbd
 
-    # SCP + touch chain - moved here (after adbd start) since these were
-    # blocking adbd from starting when placed in "on init". insmod is
-    # synchronous; if any of the four touch driver probes below hangs or
-    # takes a long time, everything after it in the same trigger stalls.
-    # Placing this after "start adbd" guarantees adb comes up regardless
-    # of what happens with touch/SCP.
-    insmod /lib/modules/scp.ko
-    insmod /lib/modules/sensorHub.ko
-    insmod /lib/modules/alspshub.ko
-    insmod /lib/modules/tui-common.ko
-    insmod /lib/modules/tpd_notify.ko
-    insmod /lib/modules/ilitek_spi.ko
-    insmod /lib/modules/chipone.ko
-    insmod /lib/modules/chipone9916.ko
-    insmod /lib/modules/gt1151.ko
+    # SCP + touch chain intentionally NOT auto-loaded: scp.ko is
+    # confirmed to hang the whole init action queue in recovery.
+    # Load manually after boot: adb shell sh /sbin/load_touch.sh
 
 on boot
     start health-hal-2-1
