@@ -10,7 +10,7 @@ Experimental TWRP 14.1 recovery for the Lenovo Tab One Wi‑Fi, model
 | SoC | MT6768 family, `ro.hardware=mt8786` |
 | Platform | `mt6768` |
 | OS | Android 15 / ZUI 17, build `AP3A.240905.015.A2` |
-| Firmware | `S2002997_260522_ROW` |
+| Firmware | `TB305FU_ROW_OPEN_USER_V5_V_ZUI_17.0.10.269_ST_260522` |
 | Security patch | `2026-05-05` |
 | Display | 800 × 1340, density 180, backlight max 4095 |
 | Slot | A/B, dynamic partitions, erofs system images |
@@ -26,7 +26,7 @@ fragment with TWRP.
 ## What was verified for this tree
 
 Everything below was checked against a live TB305FU unit
-(`S2002997_260522_ROW`, patch `2026-05-05`), not copied on faith:
+(`TB305FU_ROW_OPEN_USER_V5_V_ZUI_17.0.10.269_ST_260522`, patch `2026-05-05`), not copied on faith:
 
 - `prebuilt/kernel` is byte-identical to the stock boot kernel.
 - `prebuilt/stock.dtb` is byte-identical to the DTB inside the stock
@@ -50,30 +50,44 @@ Everything below was checked against a live TB305FU unit
 `verify-prebuilts.sh` re-checks every shipped blob against
 `prebuilt/SHA256SUMS`.
 
-The tree is a re-targeted version of the working `clove_row_wifi` port; it
-uses the same TWRP 14.1 platform patches and crypto stack. It has **not**
-been rebuilt inside this environment (a TWRP build needs ~150 GB).
+The tree was built with GitHub Actions (TWRP 14.1 minimal manifest, lunch
+`twrp_clove-ap2a-eng`) on 2026-10-25 and tested on a TB305FU. The built image
+is `vendor_boot-twrp-experimental.img`, exactly 67,108,864 bytes, with a valid
+AVB hash footer that uses the stock salt.
 
 ## Status
 
-Reported working by the reference port this tree is derived from:
+Tested on my own TB305FU (build of 2026-10-25, firmware `TB305FU_ROW_OPEN_USER_V5_V_ZUI_17.0.10.269_ST_260522`):
 
-- TWRP UI, DRM graphics, ILITEK touch, persistent ADB
-- SELinux **enforcing**
-- Beanpod Keymaster 4.1 + MicroTrust TEEI + `keystore2`
-- Metadata encryption unwrap (`dm-default-key` on `/dev/block/mapper/userdata`)
-- `/data` mounted as f2fs from that mapper
-- User-0 DE/CE key installation and `fscrypt_init_user0` under enforcing
-- Automatic no-lock / default-credential synthetic-password unwrap
-- Pattern credential verification through the stock Android 15 AIDL Gatekeeper
+- Boots TWRP from `vendor_boot_a`, and stock Android still boots afterwards
+- ILITEK touch works
+- ADB works
+- `/data` decrypts with the lock screen password; `/data/media/0` shows real
+  file names, and `/data` is mounted as f2fs on a device-mapper device
+- `vendor`, `vendor_dlkm` and `system_dlkm` are mounted by TWRP
+- `system_a` mounts by hand (`mount -t erofs -o ro /dev/block/mapper/system_a /mnt/x`)
+- Root works together with TWRP: the built image was patched with the
+  KernelSU manager app (see "Root with KernelSU" below), flashed to
+  `vendor_boot_a`, and both TWRP and Android with root boot
+
+Not tested yet: backup and restore, `adb sideload`, slot B, PIN and pattern
+credentials, no-lock devices.
 
 Known limitations:
 
-- PIN and password credentials are untested; pattern and no-lock are verified.
+- Only a lock screen password has been tested for decryption.
+- `System`, `System_EXT` and `Product` cannot be ticked in the Mount menu.
+  `/system_ext` and `/product` are symlinks into `/system`, and `/system` is
+  never mounted because the fstab mount point `/system_root` does not exist in
+  the recovery ramdisk (the recovery's mkdir on `/` is denied by SELinux).
+- MTP is disabled (`TW_EXCLUDE_MTP := true`); use `adb pull` and `adb push`.
+- `dmesg` shows repeated SELinux denials: the recovery searching
+  `/system_dlkm`, `ioctl` on `dm-*` devices, and starting the health HAL
+  (`ctl.interface_start` for `IHealth/default`). They are cosmetic as far as
+  tested, but the battery level in TWRP may be missing.
 - ADB `twrp decrypt` can crash recovery in a DRM page flip; use automatic
   startup decryption or the GUI.
-- EROFS logical partitions still need follow-up mount-policy work in the UI.
-- The stock `vbmeta` hashes `vendor_boot`, so flashing TWRP makes the
+- The stock `vbmeta` hashes `vendor_boot`, so flashing TWRP may make the
   bootloader show a yellow "dm-verity corruption" prompt. Press power once,
   or use the optional patched LK described below.
 
@@ -185,6 +199,33 @@ release also offers an optional patched `lk_a` (offset `0x69db8` patched from
 `30 b5 83 b0` to `00 20 70 47`); flashing LK is riskier than flashing
 recovery and is out of scope for this tree.
 
+## Root with KernelSU
+
+Root and TWRP can live in the same `vendor_boot`. You do not need to build
+anything extra, and you do not need to patch `boot` or the `init_boot`
+partition. The `init_boot` partition reads as zeros on this tablet; the real
+first-stage ramdisk is the `init_boot` **fragment** inside `vendor_boot`, and
+that is the part KernelSU patches.
+
+1. Build the image as above, and keep `vendor_boot-twrp-experimental.img` and
+   a dump of your own `vendor_boot_a` untouched.
+2. Copy the image to the tablet and patch the **copy** in the KernelSU manager
+   app (LKM mode, `vendor_boot` image).
+3. Check the result before flashing (for example with `unpack_bootimg.py`):
+   - still 67,108,864 bytes and three ramdisk fragments
+   - platform fragment `6d4a8383…` and DTB `28caeace…` unchanged
+   - recovery fragment identical to the one in the unpatched image (the app
+     must not recompress it)
+   - only the `init_boot` fragment differs
+4. Flash the patched image to `vendor_boot_a`. Recovery boots TWRP, and
+   Android boots with root.
+
+Tested on this tablet with the KernelSU manager app. The app leaves the AVB
+hash descriptor inside the image as it was and only updates the footer size
+fields, so the hash no longer matches the content. The bootloader on this
+tablet (unlocked) does not enforce it and the image boots, but this has only
+been tested here. Keep a rollback image.
+
 ## Layout notes that will bite you
 
 - `/data` is FBE v2 with metadata encryption:
@@ -227,6 +268,8 @@ recovery and is out of scope for this tree.
   `/data` must stay encrypted (never format it).
 - **Yellow dm-verity screen.** Expected with a modified `vendor_boot`; press
   power once. Do not try to "fix" it by flashing `vbmeta`.
+- **Root missing after reflashing TWRP.** Flashing a plain TWRP image replaces
+  the patched `init_boot` fragment. Patch the new image again.
 - **Boot loop / wrong slot.** Hold power+volume to return to fastboot and
   restore your dumped `vendor_boot_a`, or boot the stock slot B image.
 
