@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Optional repo manifest entry.
+
+  If you host this device tree in your own GitHub account, replace
+  YOUR_GITHUB_USER, copy this file to
+  <twrp-tree>/.repo/local_manifests/clove.xml, and run `repo sync` again.
+  If you are not hosting it, ignore this file and copy the tree into
+  device/lenovo/clove manually.
+-->
+<manifest>
+    <project name="YOUR_GITHUB_USER/android_device_lenovo_clove"
+             path="device/lenovo/clove"
+             remote="github"
+             revision="main" />
+</manifest>

@@ -1,200 +1,126 @@
+# Recovery configuration for the Lenovo Tab One (TB305FU, device codename clove).
 #
-# Copyright (C) 2025 The TWRP Open Source Project
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+# Everything here is derived from the stock Android 15 firmware
+# (TB305FU_EEA / S2002997_260522_ROW / security patch 2026-05-05) and from
+# values read back from a live TB305FU unit. This tree keeps the stock GKI
+# kernel, DTB, platform ramdisk and init_boot ramdisk fragment, and replaces
+# only the vendor_boot "recovery" ramdisk fragment.
 
 DEVICE_PATH := device/lenovo/clove
 
-# Building with minimal manifest
-ALLOW_MISSING_DEPENDENCIES := true
-BUILD_BROKEN_DUP_RULES := true
+BOARD_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy
+BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
 
-# A/B
-AB_OTA_UPDATER := true
-AB_OTA_PARTITIONS += \
-    boot \
-    dtbo \
-    init_boot \
-    system \
-    system_ext \
-    product \
-    vendor \
-    vbmeta \
-    vendor_boot \
-    vbmeta_system \
-    vbmeta_vendor
-
-# Architecture
 TARGET_ARCH := arm64
 TARGET_ARCH_VARIANT := armv8-a
 TARGET_CPU_ABI := arm64-v8a
-TARGET_CPU_ABI2 := 
-TARGET_CPU_VARIANT := generic
-TARGET_CPU_VARIANT_RUNTIME := cortex-a55
+TARGET_CPU_VARIANT := cortex-a53
 TARGET_2ND_ARCH := arm
-TARGET_2ND_ARCH_VARIANT := armv7-a-neon
+TARGET_2ND_ARCH_VARIANT := armv8-a
 TARGET_2ND_CPU_ABI := armeabi-v7a
 TARGET_2ND_CPU_ABI2 := armeabi
-TARGET_2ND_CPU_VARIANT := generic
-TARGET_2ND_CPU_VARIANT_RUNTIME := cortex-a55
+TARGET_2ND_CPU_VARIANT := cortex-a53
+TARGET_SUPPORTS_64_BIT_APPS := true
 
-ENABLE_CPUSETS := true
-ENABLE_SCHEDBOOST := true
+TARGET_BOARD_PLATFORM := mt6768
+# Stock ro.product.board is "clove_row_wifi" even though the AOSP device
+# codename used by this tree is "clove". Keep the stock value: Lenovo's
+# vendor blobs and init scripts key off it.
+TARGET_BOOTLOADER_BOARD_NAME := clove_row_wifi
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
+BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 
-# Assert
-TARGET_OTA_ASSERT_DEVICE := clove
-
-# Kernel
-TARGET_KERNEL_ARCH := arm64
-TARGET_KERNEL_HEADER_ARCH := arm64
-
-TARGET_NO_KERNEL := true
-BOARD_RAMDISK_USE_LZ4 := true
-BOARD_KERNEL_SEPARATED_DTBO := true
-
-TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb.img
-
-BOARD_KERNEL_BASE := 0x40078000
-BOARD_VENDOR_CMDLINE := bootopt=64S3,32N2,64N2
-#BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2
-#BOARD_VENDOR_BASE := 0x40078000
-BOARD_PAGE_SIZE := 4096
-BOARD_KERNEL_OFFSET := 0x00008000
-BOARD_RAMDISK_OFFSET := 0x07c08000
-BOARD_TAGS_OFFSET := 0x0bc08000
+# Stock Android 15 GKI boot image, 4 KiB pages.
 BOARD_BOOT_HEADER_VERSION := 4
-BOARD_VENDOR_RAMDISK_FRAGMENTS += init_boot
-BOARD_VENDOR_RAMDISK_FRAGMENT.init_boot.PREBUILT := $(DEVICE_PATH)/prebuilt/init_boot_ramdisk.img
-BOARD_VENDOR_RAMDISK_FRAGMENT.init_boot.MKBOOTIMG_ARGS := --ramdisk_type 1
-BOARD_HEADER_SIZE := 2128
-BOARD_DTB_SIZE := 164120
-BOARD_DTB_OFFSET := 0x0bc08000
-BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
+BOARD_MKBOOTIMG_ARGS := --header_version 4 --kernel_offset 0x00080000 --ramdisk_offset 0x07c80000 --tags_offset 0x0bc80000 --dtb_offset 0x0bc80000
+BOARD_KERNEL_PAGESIZE := 4096
+BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2
+BOARD_KERNEL_BASE := 0x40000000
+BOARD_KERNEL_OFFSET := 0x00080000
+BOARD_RAMDISK_OFFSET := 0x07c80000
+BOARD_TAGS_OFFSET := 0x0bc80000
+BOARD_DTB_OFFSET := 0x0bc80000
+BOARD_RAMDISK_USE_LZ4 := true
 
-BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
-BOARD_MKBOOTIMG_ARGS += --vendor_cmdline $(BOARD_VENDOR_CMDLINE)
-BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_PAGE_SIZE) --board ""
-BOARD_MKBOOTIMG_ARGS += --kernel_offset $(BOARD_KERNEL_OFFSET)
-BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
-BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_TAGS_OFFSET)
-BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
-BOARD_MKBOOTIMG_ARGS += --dtb_offset $(BOARD_DTB_OFFSET)
-
-# Partitions
-BOARD_FLASH_BLOCK_SIZE := 262144 # (BOARD_KERNEL_PAGESIZE * 64)
+# Partition sizes read from /dev/block/by-name/* on a TB305FU.
+BOARD_BOOTIMAGE_PARTITION_SIZE := 33554432
 BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := 67108864
-BOARD_HAS_LARGE_FILESYSTEM := true
+BOARD_INIT_BOOT_IMAGE_PARTITION_SIZE := 8388608
+BOARD_DTBOIMG_PARTITION_SIZE := 8388608
+BOARD_SUPER_PARTITION_SIZE := 11811160064
+BOARD_FLASH_BLOCK_SIZE := 262144
 
-# filesystem
-BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_SYSTEM_EXTIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
-BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
-TARGET_USERIMAGES_USE_EXT4 := true
-TARGET_USERIMAGES_USE_F2FS := true
+AB_OTA_UPDATER := true
+AB_OTA_PARTITIONS := \
+    boot \
+    dtbo \
+    init_boot \
+    odm_dlkm \
+    product \
+    system \
+    system_dlkm \
+    system_ext \
+    vbmeta \
+    vbmeta_system \
+    vbmeta_vendor \
+    vendor \
+    vendor_boot \
+    vendor_dlkm
 BOARD_USES_METADATA_PARTITION := true
+BOARD_BUILD_SUPER_IMAGE_BY_DEFAULT := false
 
-# super
-BOARD_SUPER_PARTITION_SIZE :=6442450944
-BOARD_SUPER_PARTITION_GROUPS := lenovo_dynamic_partitions
-BOARD_LENOVO_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext vendor product vendor_dlkm odm_dlkm
-BOARD_LENOVO_DYNAMIC_PARTITIONS_SIZE :=6434062336
-
-# copyout
-TARGET_COPY_OUT_PRODUCT := product
-TARGET_COPY_OUT_SYSTEM := system
-TARGET_COPY_OUT_SYSTEM_EXT := system_ext
-TARGET_COPY_OUT_VENDOR := vendor
-
-# Verified Boot
-BOARD_AVB_ENABLE := true
-BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --flags 3
-BOARD_AVB_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
-BOARD_AVB_RECOVERY_ALGORITHM := SHA256_RSA4096
-BOARD_AVB_RECOVERY_KEY_PATH := external/avb/test/data/testkey_rsa4096.pem
-BOARD_AVB_RECOVERY_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
-BOARD_AVB_RECOVERY_ROLLBACK_INDEX_LOCATION := 1
-
-# Recovery
-TARGET_NO_RECOVERY := true
-TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+# Stock vendor_boot v4 carries three fragments: platform, recovery, init_boot.
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
-TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery/root/system/etc/recovery.fstab
+TARGET_NO_RECOVERY := true
 
-# Properties
-TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
-
-# Hack: prevent anti rollback
-PLATFORM_VERSION := 15
-PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
-PLATFORM_SECURITY_PATCH := 2099-12-31
-VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
-BOOT_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
-
-# Platform
-TARGET_BOARD_PLATFORM := mt6768
-
-# TWRP Configurations
-TW_FRAMERATE := 60
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
+TARGET_RECOVERY_PIXEL_FORMAT := BGRA_8888
 TW_THEME := portrait_hdpi
-TARGET_USES_LOGD := true
-TWRP_INCLUDE_LOGCAT := true
-TW_INCLUDE_RESETPROP := true
-TW_INCLUDE_REPACKTOOLS := true
-TW_INCLUDE_LIBRESETPROP := true
-TW_EXCLUDE_APEX := true
-TW_INCLUDE_NTFS_3G := true
-TARGET_USES_MKE2FS := true
-TW_INCLUDE_FUSE_EXFAT := true
-TW_EXTRA_LANGUAGES := true
-TW_NO_FASTBOOT_BOOT := true
 
-# Crypto
-TW_INCLUDE_CRYPTO := true
-TW_INCLUDE_CRYPTO_FBE := true
-TW_INCLUDE_FBE_METADATA_DECRYPT := true
-TW_USE_FSCRYPT_POLICY := 2
-TW_FORCE_KEYMASTER_VER := true
+# Names used by ROM/OTA zips that may be flashed from this recovery.
+TARGET_OTA_ASSERT_DEVICE := clove,TB305FU,clove_row_wifi
+TW_DEVICE_VERSION := clove-TB305FU
 
-#Brightness
-TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
-TW_DEFAULT_BRIGHTNESS := 1200
+# Display, battery and thermal sysfs nodes verified on TB305FU:
+#   /sys/class/leds/lcd-backlight/{max_,}brightness  (max 4095)
+#   /sys/class/power_supply/battery/capacity
+#   thermal_zone8 -> mtktscpu
+TW_BRIGHTNESS_PATH := /sys/class/leds/lcd-backlight/brightness
 TW_MAX_BRIGHTNESS := 4095
-
-# Battery: tell TWRP to use the MTK battery sysfs path for capacity.
-# mt6358_battery exposes capacity at this node (verified on MT6768).
+TW_DEFAULT_BRIGHTNESS := 2048
 TW_CUSTOM_BATTERY_PATH := /sys/class/power_supply/battery/capacity
-
-# USB
-TW_EXCLUDE_DEFAULT_USB_INIT := true
-
-# Storage
-RECOVERY_SDCARD_ON_DATA := true
-
-# Maintainer
-BOARD_MAINTAINER_NAME := Adnan2109
-TW_DEVICE_VERSION := $(BOARD_MAINTAINER_NAME)
-OF_MAINTAINER := $(BOARD_MAINTAINER_NAME)
-PB_MAIN_VERSION := $(BOARD_MAINTAINER_NAME)
-
-# CPU Temp: thermal_zone8 registered by MTK_INTERNAL_SPM as type 'mtktscpu'
 TW_CUSTOM_CPU_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone8/temp
 
-# Touch: ensure screen is not blanked on boot so touch events register properly.
-# Also helps with ILITEK/Goodix touch initialization on MTK Helio.
-TW_SCREEN_BLANK_ON_BOOT := true
+TW_INCLUDE_FASTBOOTD := true
+TW_EXCLUDE_MTP := true
+TW_INCLUDE_REPACKTOOLS := true
+TW_INCLUDE_RESETPROP := true
+TW_INCLUDE_LIBRESETPROP := true
+TW_USE_TOOLBOX := true
+
+# Do not use TW_LOAD_VENDOR_MODULES for the touch stack. Lenovo's generated
+# dependency graph recursively reaches scp.ko, whose probe blocks recovery.
+# Touch bring-up uses a device-specific, direct ordered loader instead.
+
+# Stock /data uses metadata encryption and FBE v2. Enable the Android 14.1
+# recovery crypto stack so vold can create the dm-default-key userdata mapping
+# from /metadata/vold/metadata_encryption before mounting F2FS.
+TW_INCLUDE_CRYPTO := true
+TW_EXCLUDE_ENCRYPTED_BACKUPS := true
+TW_SKIP_ADDITIONAL_FSTAB := true
+
+# Stock ZUI 17 / Android 15 metadata keys are tagged 2026-05-05.
+# Do not set PLATFORM_SECURITY_PATCH here; Android 14.1 requires
+# RELEASE_PLATFORM_SECURITY_PATCH and changing that rebuilds the
+# whole tree. Stamp /prop.default after it is generated so Beanpod
+# Configure sees OS 15 / 2026-05-05. Do not recompress the recovery
+# lz4 fragment; the bootloader only accepts lz4 -l (legacy).
+VENDOR_SECURITY_PATCH := 2026-05-05
+BOOT_SECURITY_PATCH := 2026-05-05
+BOARD_RECOVERY_IMAGE_PREPARE = device/lenovo/clove/stamp-recovery-props.sh $(TARGET_RECOVERY_ROOT_OUT)
+
+# liblog/CHECK from the Beanpod HAL and keystore2 go nowhere without logd.
+TWRP_INCLUDE_LOGCAT := true
+TARGET_USES_LOGD := true

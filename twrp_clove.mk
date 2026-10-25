@@ -1,32 +1,16 @@
-#
-# Copyright (C) 2025 The TWRP Open Source Project
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-
-# Inherit from those products. Most specific first.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
-
-# Inherit some common twrp stuff.
+$(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/compression.mk)
 $(call inherit-product, vendor/twrp/config/common.mk)
-
-# Inherit from clove device
 $(call inherit-product, device/lenovo/clove/device.mk)
 
 PRODUCT_DEVICE := clove
 PRODUCT_NAME := twrp_clove
 PRODUCT_BRAND := Lenovo
-PRODUCT_MODEL := Lenovo Tab One
-PRODUCT_MANUFACTURER := Lenovo
+PRODUCT_MODEL := TB305FU
+PRODUCT_MANUFACTURER := LENOVO
 
+# Keep the initial Android 14.1 recovery baseline compatible with the device
+# tree's established API level. Stock firmware itself is API 35.
+PRODUCT_SHIPPING_API_LEVEL := 31
+PRODUCT_USE_DYNAMIC_PARTITIONS := true
