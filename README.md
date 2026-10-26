@@ -76,15 +76,21 @@ credentials, no-lock devices.
 Known limitations:
 
 - Only a lock screen password has been tested for decryption.
-- `System`, `System_EXT` and `Product` cannot be ticked in the Mount menu.
-  `/system_ext` and `/product` are symlinks into `/system`, and `/system` is
-  never mounted because the fstab mount point `/system_root` does not exist in
-  the recovery ramdisk (the recovery's mkdir on `/` is denied by SELinux).
+- (fix in this revision, not yet re-tested) `System`, `System_EXT` and
+  `Product` could not be ticked in the Mount menu: TWRP could not create the
+  `/system_root`, `/system_ext` and `/product` mount points because platform
+  recovery policy grants `mounton` but not `create` on `rootfs`.
+  `init.recovery.mt8786.rc` now creates those mount points (plus the
+  `vendor_dlkm`, `odm_dlkm` and `system_dlkm` ones) as init before TWRP
+  starts.
 - MTP is disabled (`TW_EXCLUDE_MTP := true`); use `adb pull` and `adb push`.
-- `dmesg` shows repeated SELinux denials: the recovery searching
-  `/system_dlkm`, `ioctl` on `dm-*` devices, and starting the health HAL
-  (`ctl.interface_start` for `IHealth/default`). They are cosmetic as far as
-  tested, but the battery level in TWRP may be missing.
+- Battery percentage now comes from `/sys/class/power_supply/battery` through
+  `TW_USE_LEGACY_BATTERY_SERVICES`. The AOSP health HAL cannot run as
+  `u:r:recovery:s0` (its lazy start uses `ctl.interface_start`, which platform
+  policy only grants to the hwservicemanager domain, and `hal_health.te`
+  neverallows a non-`hal_health_server` domain from registering `IHealth`), so
+  the direct sysfs path also avoids those denials. Recovery may still log
+  cosmetic `ioctl` denials on `dm-*` devices.
 - ADB `twrp decrypt` can crash recovery in a DRM page flip; use automatic
   startup decryption or the GUI.
 - The stock `vbmeta` hashes `vendor_boot`, so flashing TWRP may make the

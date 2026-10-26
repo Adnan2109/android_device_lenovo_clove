@@ -1,3 +1,17 @@
+on early-init
+    # Platform recovery policy grants u:r:recovery:s0 mounton on rootfs but
+    # not create, so TWRP's Make_Dir() cannot create mount points under /.
+    # Create them here as init (new rootfs directories, which recovery is
+    # allowed to mount on) before the recovery service starts on boot.
+    # Without /system_root the System, System_EXT and Product entries in the
+    # Mount menu cannot be mounted.
+    mkdir /system_root 0755
+    mkdir /system_ext 0755
+    mkdir /product 0755
+    mkdir /vendor_dlkm 0755
+    mkdir /odm_dlkm 0755
+    mkdir /system_dlkm 0755
+
 on init
     setprop sys.usb.configfs 1
     setprop sys.usb.controller musb-hdrc

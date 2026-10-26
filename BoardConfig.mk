@@ -85,12 +85,23 @@ TW_DEVICE_VERSION := clove-TB305FU
 
 # Display, battery and thermal sysfs nodes verified on TB305FU:
 #   /sys/class/leds/lcd-backlight/{max_,}brightness  (max 4095)
-#   /sys/class/power_supply/battery/capacity
+#   /sys/class/power_supply/battery/{capacity,status}
 #   thermal_zone8 -> mtktscpu
 TW_BRIGHTNESS_PATH := /sys/class/leds/lcd-backlight/brightness
 TW_MAX_BRIGHTNESS := 4095
 TW_DEFAULT_BRIGHTNESS := 2048
-TW_CUSTOM_BATTERY_PATH := /sys/class/power_supply/battery/capacity
+
+# The AOSP health HAL cannot be hosted by u:r:recovery:s0: TWRP's
+# hwservicemanager also runs as recovery, but platform policy only lets
+# the hwservicemanager domain set ctl.interface_start, and hal_health.te
+# neverallows a domain other than hal_health_server from registering
+# IHealth. Platform recovery policy already allows reading
+# sysfs_batteryinfo, so use TWRP's direct sysfs path instead.
+# TW_CUSTOM_BATTERY_PATH is a directory; TWRP appends /capacity and
+# /status. TW_USE_LEGACY_BATTERY_SERVICES must be set explicitly because
+# bootable/recovery checks it before it is derived from the custom path.
+TW_USE_LEGACY_BATTERY_SERVICES := true
+TW_CUSTOM_BATTERY_PATH := /sys/class/power_supply/battery
 TW_CUSTOM_CPU_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone8/temp
 
 TW_INCLUDE_FASTBOOTD := true
